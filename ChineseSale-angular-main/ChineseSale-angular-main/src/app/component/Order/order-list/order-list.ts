@@ -1,22 +1,18 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { GetOrderDto } from '../../../models/order.model';
 import { OrderService } from '../../../service/order.service.';
 
 @Component({
   selector: 'app-order-list',
   standalone: true,
-  imports: [CommonModule, TableModule, ToastModule],
-  providers: [MessageService],
+  imports: [CommonModule, TableModule],
   templateUrl: './order-list.html',
   styleUrl: './order-list.scss'
 })
 export class OrderList implements OnInit {
   private orderService = inject(OrderService);
-  private messageService = inject(MessageService);
 
   orders = signal<GetOrderDto[]>([]);
 
@@ -27,9 +23,7 @@ export class OrderList implements OnInit {
   loadAllOrders(): void {
     this.orderService.GetAllOrders().subscribe({
       next: (data) => this.orders.set(data),
-      error: () => this.messageService.add({
-        severity: 'error', summary: 'שגיאה', detail: 'טעינת ההזמנות נכשלה'
-      })
+      error: () => this.orders.set([])
     });
   }
 

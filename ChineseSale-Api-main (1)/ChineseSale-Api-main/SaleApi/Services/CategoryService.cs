@@ -1,13 +1,11 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using SaleApi.Models;
+﻿using SaleApi.Models;
 using SaleApi.Repositories;
 using static SaleApi.Dto.CategoryDto;
-using static SaleApi.Dto.DonerDto;
 using static SaleApi.Dto.GiftDto;
 
 namespace SaleApi.Services
 {
-    public class CategoryService: ICategoryService
+    public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository _categoryrRepository;
         private readonly ILogger<CategoryService> _logger;
@@ -24,16 +22,14 @@ namespace SaleApi.Services
             return category ?? Enumerable.Empty<Category>();
         }
 
-
-
-        ///קטגוריה חדשה 
         public async Task<CreateCategoryDto> NewCategory(CreateCategoryDto categoryDto)
         {
             var category = new Category
             {
-               Name = categoryDto.Name,
-               Color = categoryDto.Color,
+                Name = categoryDto.Name,
+                Color = categoryDto.Color,
             };
+
             var cerated = await _categoryrRepository.NewCategory(category);
             _logger.LogInformation("Category created with ID: {CategoryId}", cerated.Id);
 
@@ -44,14 +40,11 @@ namespace SaleApi.Services
             };
         }
 
-
-        //מחיקת קטגוריה
         public async Task DeleteCategory(int id)
         {
             await _categoryrRepository.DeleteCategory(id);
         }
 
-        //GetCategoryById
         public async Task<Category> GetCategoryById(int id)
         {
             var c = await _categoryrRepository.GetCategoryById(id);
@@ -59,31 +52,32 @@ namespace SaleApi.Services
             return c;
         }
 
-
-        //עידכון קטגוריה
         public async Task<GetCategoryDto> UpdateCategory(GetCategoryDto CategoryDto)
         {
             var existing = await _categoryrRepository.GetCategoryById(CategoryDto.Id);
             if (existing == null) return null;
 
-            existing.Name = CategoryDto.Name?? existing.Name;
-            existing.Color=CategoryDto.Color ?? existing.Color;
-        
+            existing.Name = CategoryDto.Name ?? existing.Name;
+            existing.Color = CategoryDto.Color ?? existing.Color;
+
             var updatedCategory = await _categoryrRepository.UpdateCategory(existing);
             if (updatedCategory == null) return null;
+
             _logger.LogInformation("Category update with ID: {CategoryId}", updatedCategory.Id);
+
             return new GetCategoryDto
-            {Name = updatedCategory.Name, Color=updatedCategory.Color };
+            {
+                Name = updatedCategory.Name,
+                Color = updatedCategory.Color
+            };
         }
 
-
-        // את כל המוצרים של קטגוריה
         public async Task<List<GiftResponseDto>> GetGiftByCategoryId(int categoryId)
         {
             var gifts = await _categoryrRepository.GetGiftByCategoryId(categoryId);
-            return gifts.Select(g =>MapToResponseGiftDto(g)).ToList();
-
+            return gifts.Select(g => MapToResponseGiftDto(g)).ToList();
         }
+
         private static GiftResponseDto MapToResponseGiftDto(Gift gift)
         {
             return new GiftResponseDto
@@ -95,9 +89,7 @@ namespace SaleApi.Services
                 Price = gift.Price,
                 CategoryId = gift.CategoryId,
                 IdDoner = gift.IdDoner,
-
             };
         }
-
     }
 }

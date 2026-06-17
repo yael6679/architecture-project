@@ -1,8 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { RandomService } from '../../service/random.service';
 import { GiftService } from '../../service/gift.service';
 import { Gift } from '../../models/gift.model';
@@ -10,25 +8,22 @@ import { Gift } from '../../models/gift.model';
 @Component({
   selector: 'app-random',
   standalone: true,
-  imports: [CommonModule, ButtonModule, ToastModule],
-  providers: [MessageService],
+  imports: [CommonModule, ButtonModule],
   templateUrl: './random.html',
   styleUrl: './random.scss',
 })
 export class Random implements OnInit {
   private randomService = inject(RandomService);
   private giftService = inject(GiftService);
-  private messageService = inject(MessageService);
 
   gifts = signal<Gift[]>([]);
   drawingId = signal<number | null>(null);
+  drawResults = signal<Record<number, string>>({});
 
   ngOnInit() {
     this.giftService.getAllGifts().subscribe({
       next: (data) => this.gifts.set(data),
-      error: () => this.messageService.add({
-        severity: 'error', summary: 'שגיאה', detail: 'טעינת המתנות נכשלה'
-      })
+      error: () => this.gifts.set([])
     });
   }
 
@@ -40,22 +35,15 @@ export class Random implements OnInit {
         const name = winner.user
           ? `${winner.user.firstName} ${winner.user.lastName}`
           : `#${winner.idUser}`;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'הגרלה הושלמה',
-          detail: `הזוכה: ${name}`,
-          life: 5000
-        });
+        this.drawResults.update(prev => ({ ...prev, [giftId]: name }));
       },
-      error: (err) => {
+      error: () => {
         this.drawingId.set(null);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'שגיאה בהגרלה',
-          detail: err.error || 'אירעה שגיאה לא ידועה',
-          life: 5000
-        });
       }
     });
+  }
+
+  getDrawResult(giftId: number): string | null {
+    return this.drawResults()[giftId] ?? null;
   }
 }

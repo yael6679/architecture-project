@@ -9,17 +9,17 @@
 }
 
 .draw-card {
-  background: white;
+  background: rgba(255, 255, 255, 0.92);
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid color-mix(in srgb, var(--cs-primary) 28%, white);
   padding: 1.5rem;
   text-align: center;
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.06);
+  box-shadow: 0 8px 32px color-mix(in srgb, var(--cs-glow, var(--cs-primary)) 28%, transparent);
   transition: transform 0.2s, box-shadow 0.2s;
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 16px 40px rgba(99, 102, 241, 0.12);
+    box-shadow: 0 16px 48px color-mix(in srgb, var(--cs-glow, var(--cs-primary)) 42%, transparent);
   }
 
   h3 {
@@ -34,8 +34,8 @@
   height: 56px;
   margin: 0 auto;
   border-radius: 14px;
-  background: linear-gradient(135deg, #eef2ff, #fce7f3);
-  color: #6366f1;
+  background: var(--cs-primary-light);
+  color: var(--cs-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -44,17 +44,25 @@
 
 .draw-price {
   display: block;
-  color: #6366f1;
+  color: var(--cs-primary);
   font-weight: 700;
   margin-bottom: 1rem;
 }
 
+.draw-result {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--cs-primary-dark);
+}
+
 :host ::ng-deep .draw-btn {
   width: 100%;
-  background: linear-gradient(135deg, #6366f1, #818cf8) !important;
+  background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-dark)) !important;
   border: none !important;
   border-radius: 12px !important;
   font-weight: 700 !important;
+  box-shadow: 0 6px 22px color-mix(in srgb, var(--cs-glow, var(--cs-primary)) 45%, transparent) !important;
 }
 
 @keyframes fadeIn {

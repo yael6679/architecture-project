@@ -5,8 +5,6 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { CardModule } from 'primeng/card';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { UserService } from '../../../service/user.service';
 import { Router, RouterLink } from '@angular/router';
 
@@ -15,18 +13,17 @@ import { Router, RouterLink } from '@angular/router';
   standalone: true,
   imports: [
     CommonModule, FormsModule, ButtonModule, InputTextModule,
-    PasswordModule, CardModule, ToastModule, RouterLink
+    PasswordModule, CardModule, RouterLink
   ],
-  providers: [MessageService],
   templateUrl: './register.html',
   styleUrl: './register.scss'
 })
 export class Register {
-  private messageService = inject(MessageService);
   private registerService = inject(UserService);
   private router = inject(Router);
 
   isLoading = signal(false);
+  formError = signal('');
 
   registerData = {
     FirstName: '',
@@ -38,13 +35,15 @@ export class Register {
   };
 
   onRegister() {
+    this.formError.set('');
+
     if (!this.registerData.FirstName || !this.registerData.LastName || !this.registerData.Email || !this.registerData.Password) {
-      this.messageService.add({ severity: 'warn', summary: 'שדות חסרים', detail: 'נא למלא את כל השדות הנדרשים' });
+      this.formError.set('נא למלא את כל השדות הנדרשים');
       return;
     }
 
     if (this.registerData.Password !== this.registerData.confirmPassword) {
-      this.messageService.add({ severity: 'error', summary: 'שגיאה', detail: 'הסיסמאות אינן תואמות' });
+      this.formError.set('הסיסמאות אינן תואמות');
       return;
     }
 
@@ -53,12 +52,7 @@ export class Register {
     this.registerService.registerUser(this.registerData).subscribe({
       next: () => {
         this.isLoading.set(false);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'הצלחה',
-          detail: 'החשבון נוצר! מועבר/ת להתחברות'
-        });
-        setTimeout(() => this.router.navigate(['/login']), 1200);
+        this.router.navigate(['/login']);
       },
       error: (err) => {
         this.isLoading.set(false);
@@ -73,7 +67,7 @@ export class Register {
           errorMessage = err.error;
         }
 
-        this.messageService.add({ severity: 'error', summary: 'שגיאה ברישום', detail: errorMessage });
+        this.formError.set(errorMessage);
       }
     });
   }

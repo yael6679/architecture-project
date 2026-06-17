@@ -10,7 +10,6 @@ public class EmailService : IEmailService
         message.To.Add(new MailboxAddress(userName, targetEmail));
         message.Subject = "מזל טוב! זכית בפרס במכירה הסינית 🎁";
 
-        // עיצוב גוף המייל ב-HTML
         message.Body = new TextPart("html")
         {
             Text = $@"
@@ -28,12 +27,8 @@ public class EmailService : IEmailService
 
         using (var client = new SmtpClient())
         {
-            // כאן מתחברים לשרת המייל (דוגמה עבור Gmail)
             await client.ConnectAsync("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
-
-            // חשוב: עבור Gmail צריך להשתמש ב-"App Password" ולא בסיסמה הרגילה
             await client.AuthenticateAsync("shira13098@gmail.com", "siynvuvpwfgeqrdo");
-
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
         }

@@ -1,4 +1,5 @@
 @import "primeicons/primeicons.css";
+@import "./styles/page-themes";
 
 :root {
   --cs-primary: #2563eb;
@@ -36,7 +37,7 @@ html {
 body {
   margin: 0;
   font-family: 'Heebo', 'Segoe UI', sans-serif;
-  background: var(--cs-bg);
+  background: #0f172a;
   color: var(--cs-text);
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
@@ -118,6 +119,12 @@ a {
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--cs-danger);
+}
+
+.dialog-error,
+.auth-form-error {
+  margin: 0.5rem 0 0;
+  text-align: center;
 }
 
 .form-field {

@@ -10,7 +10,7 @@ namespace SaleApi.Services
         Task DeleteDoner(int id);
         Task<UpdateDonerDto> GetDonerById(int id);
         Task<UpdateDonerDto> UpdateDoner(UpdateDonerDto donerDto);
-        Task<CreateDonerDto> NewDoner(CreateDonerDto donerDto);
+        Task<UpdateDonerDto> NewDoner(CreateDonerDto donerDto);
         Task<IEnumerable<GetDonerDtoWithGift>> GetAllDonerWithGift();
         Task<GetDonerDtoWithGift> GetDonerByIdWithGift(int id);
         Task<IEnumerable<GetDonerDtoWithGift>> GetDonerByName(string name);

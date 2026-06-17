@@ -32,7 +32,7 @@ namespace SaleApi.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Doner>> NewDoner([FromBody] CreateDonerDto dto)
+        public async Task<ActionResult<UpdateDonerDto>> NewDoner([FromBody] CreateDonerDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

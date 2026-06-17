@@ -1,6 +1,4 @@
-<p-toast />
-
-<div class="auth-page">
+<div class="auth-page page-theme-teal">
     <p-card styleClass="auth-card shadow-4 border-round-2xl">
         <div class="auth-header">
             <div class="auth-icon"><i class="pi pi-user-plus"></i></div>
@@ -58,6 +56,10 @@
                       (click)="onRegister()"
                       [loading]="isLoading()"
                       styleClass="w-full p-button-lg mt-2" />
+
+            @if (formError()) {
+                <p class="field-error auth-form-error">{{ formError() }}</p>
+            }
         </div>
 
         <ng-template pTemplate="footer">

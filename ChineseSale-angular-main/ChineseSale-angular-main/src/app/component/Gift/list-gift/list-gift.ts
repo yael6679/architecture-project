@@ -1,8 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-
-// PrimeNG Imports
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
@@ -12,14 +10,10 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { TableModule } from 'primeng/table';
-import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { MessageService, ConfirmationService } from 'primeng/api';
-
-
-// Services
+import { ConfirmationService } from 'primeng/api';
 import { GiftService } from '../../../service/gift.service';
 import { CategoryService } from '../../../service/category.service'; 
 import { DonorService } from '../../../service/donor.service';     
@@ -44,7 +38,7 @@ import { UserService } from '../../../service/user.service';
   imports: [
     CommonModule, FormsModule, ButtonModule, ConfirmDialogModule, DialogModule, 
     FileUploadModule, IconFieldModule, InputIconModule, InputNumberModule, 
-    RadioButtonModule, TableModule, ToastModule, ToolbarModule, InputTextModule,TextareaModule,
+    RadioButtonModule, TableModule, ToolbarModule, InputTextModule,TextareaModule,
     SelectModule,DividerModule,GiftByCategory
   ],
   providers: [GiftService, CategoryService, DonorService, ConfirmationService],
@@ -55,7 +49,6 @@ export class ListGift implements OnInit {
   private giftService = inject(GiftService);
   private categoryService = inject(CategoryService);
   private donerService = inject(DonorService);
-  private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   readonly serverUrl =environment.serverUrl;
     private randomService = inject(RandomService);
@@ -73,8 +66,6 @@ products = signal<Gift[]>([]);
   submitted: boolean = false;
 allWinners = signal<Winner[]>([]);
 
-
-/////
   private userService = inject(UserService);
   user = this.userService.currentUser;
   isAdmin = computed(() => this.userService.currentUser()?.role === 'Admin');
@@ -88,7 +79,6 @@ allWinners = signal<Winner[]>([]);
   loadMetadata() {
     this.categoryService.getAllCategory().subscribe({
       next: (data) => {
-        // console.log(data);
     this.categories.set(data);
       },
       error: () => console.error('חובה להוסיף קטגוריות !')
@@ -102,10 +92,9 @@ allWinners = signal<Winner[]>([]);
   loadGifts() {
     this.giftService.getAllGifts().subscribe({
       next: (data) => {
-        // console.log(data);
         this.products.set(data);
       },
-      error: () => this.showError('שגיאה בטעינת נתונים ')
+      error: () => this.products.set([])
     });
   }
 
@@ -147,7 +136,6 @@ saveProduct() {
     (this.product.price ?? 0) > 0;
 
   if (!valid) {
-    this.showError('נא למלא שם, קטגוריה, תורם ומחיר תקין');
     return;
   }
     
@@ -167,12 +155,12 @@ saveProduct() {
     if (this.product.id) {
       formData.append('id', String(this.product.id));
       this.giftService.updateGift(formData).subscribe({
-        next: () => { this.handleSuccess('המתנה עודכנה'); this.resetFileInput(); },
+        next: () => { this.handleSuccess(); this.resetFileInput(); },
         error: (err) => this.handleError(err)
       });
     } else {
       this.giftService.addGift(formData).subscribe({
-        next: () => { this.handleSuccess('מתנה נוספה בהצלחה'); this.resetFileInput(); },
+        next: () => { this.handleSuccess(); this.resetFileInput(); },
         error: (err) => this.handleError(err)
       });
     }
@@ -187,28 +175,14 @@ saveProduct() {
       message: `למחוק את ${product.name}?`,
       accept: () => {
         this.giftService.deleteGift(product.id).subscribe({
-          next: () => { this.showSuccess('נמחק'); this.loadGifts(); },
-          error: () => this.showError('מחיקה נכשלה')
+          next: () => { this.loadGifts(); },
+          error: () => {}
         });
       }
     });
   }
 
-  showSuccess(detail: string) {
-    this.messageService.add({ severity: 'success', summary: 'הצלחה', detail, life: 3000 });
-  }
-
-  showError(detail: string) {
-    this.messageService.add({ severity: 'error', summary: 'שגיאה', detail, life: 3000 });
-  }
-
-  hideDialog() { this.productDialog.set(false); 
-    this.resetFileInput();
-  }
-
-
-  private handleSuccess(msg: string) {
-    this.showSuccess(msg);
+  private handleSuccess() {
     this.loadGifts();
     this.productDialog.set(false);
     this.submitted = false;
@@ -216,28 +190,21 @@ saveProduct() {
 
   private handleError(err: any) {
     console.error('Server Error:', err);
-    
-    let message = 'אירעה שגיאה בביצוע הפעולה';
-    
-    if (err.status === 500) {
-      message = 'שגיאת שרת ';
-    } else if (err.status === 400) {
-      message = 'הנתונים שנשלחו אינם תקינים';
-    }
-
-    this.showError(message);
   }
 
-// פונקציה לקבלת צבע הקטגוריה
+  hideDialog() {
+    this.productDialog.set(false);
+    this.resetFileInput();
+  }
+
 getCategoryColor(categoryId: number | undefined): string {
-  if (categoryId === undefined) return '#d4af37'; // צבע ברירת מחדל
+  if (categoryId === undefined) return '#d4af37';
   
   const category = this.categories().find(c => c.id === categoryId);
   return category?.color || '#d4af37'; 
 }
 selectedFile: File | null = null;
 
-// פונקציה לטיפול בבחירת קובץ 
 onFileSelected(event: any) {
   const file: File = event.target.files[0];
   if (file) {
@@ -247,7 +214,7 @@ onFileSelected(event: any) {
 
 
 @ViewChild('fileInput') fileInput!: ElementRef;
-//איפוס שדה הקובץ לאחר שמירה או ביטול
+
     resetFileInput() {
       this.selectedFile = null;
         if (this.fileInput && this.fileInput.nativeElement) {
@@ -255,7 +222,6 @@ onFileSelected(event: any) {
         }
     }
 
-    //סינון מתנות לפי קטגוריה
   onFilterChanged(categoryId: number | null) {
   if (categoryId === null) {
     this.loadGifts(); 
@@ -270,18 +236,16 @@ filterByCategory(categoryId: number) {
       this.products.set(filteredGifts);
     },
     error: (err) => {
-      this.showError('לא הצלחנו לסנן את המתנות');
       console.error(err);
+      this.products.set([]);
     }
   });
 }
 
-//הוספה לסל
   addGiftToCart(gift: any) {
     const userId = this.userService.currentUser()?.id;
 
     if (!userId) {
-      this.showError('נא להתחבר למערכת');
       return;
     }
 
@@ -295,47 +259,24 @@ filterByCategory(categoryId: number) {
       };
 
       this.bagService.addBag(bagToCreate).subscribe({
-        next: () => this.showSuccess('המתנה נוספה לסל בהצלחה!'),
-        error: (err) => {
-          const detail = typeof err.error === 'string'
-            ? err.error
-            : err.error?.message || err.error?.title || 'שגיאה בהוספה לסל';
-          this.showError(detail);
-        }
+        next: () => {},
+        error: (err) => console.error(err)
       });
-    } else {
-      this.showError('מזהה מתנה חסר');
     }
   }
 
 
 
-//ביצוע ההגרלה
 onExecuteDraw(giftId: number) {
     this.randomService.runDraw(giftId).subscribe({
       next: (winner) => {
         this.loadWinner();
-             this.allWinners.update(prev => [...prev, winner]);
-        this.messageService.add({ 
-          severity: 'success', 
-          summary: 'בוצע בהצלחה', 
-          detail: `נבחר זוכה למתנה! (: ${winner.idUser})`,
-          life: 3000 
-        });
-// this.loadWinner();
+        this.allWinners.update(prev => [...prev, winner]);
       },
-      error: (err) => {
-        this.messageService.add({ 
-          severity: 'error', 
-          summary: 'שגיאה בביצוע ההגרלה', 
-          detail: err.error || 'אירעה שגיאה לא ידועה', 
-          life: 5000 
-        });
-      }
+      error: (err) => console.error(err)
     });
   }
 
-// מחזיר את הזוכה במתנה
   getWinner(giftId: number) {
 return this.allWinners().find(winner => winner.idGift === giftId);}
 

@@ -14,7 +14,6 @@ export class GiftByCategory {
 
 categories = input<Category[]>([]);
 
-// onCategoryChange = output<number | null>();
 @Output() onCategoryChange = new EventEmitter<number | null>();
 
   selectedId: number | null = null;

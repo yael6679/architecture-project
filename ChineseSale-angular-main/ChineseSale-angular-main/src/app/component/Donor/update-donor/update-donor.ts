@@ -4,8 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { Donor } from '../../../models/donor.model';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -13,16 +11,15 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 @Component({
   selector: 'app-update-donor',
   standalone: true,
-  imports: [ButtonModule, DialogModule, InputTextModule, FormsModule, ToastModule],
-  providers: [MessageService],
+  imports: [ButtonModule, DialogModule, InputTextModule, FormsModule],
   templateUrl: './update-donor.html',
   styleUrl: './update-donor.scss',
 })
 export class UpdateDonor {
   private donorService = inject(DonorService);
-  private messageService = inject(MessageService);
 
   visible = signal(false);
+  saveError = signal('');
   submitted = false;
   @Output() donorSaved = new EventEmitter<void>();
 
@@ -46,6 +43,7 @@ export class UpdateDonor {
           eMail: data.eMail
         };
         this.submitted = false;
+        this.saveError.set('');
         this.visible.set(true);
       }
     });
@@ -53,6 +51,7 @@ export class UpdateDonor {
 
   saveUpdate() {
     this.submitted = true;
+    this.saveError.set('');
     const { firstName, lastName, eMail } = this.donor;
 
     if (!firstName.trim() || !lastName.trim()) return;
@@ -65,14 +64,20 @@ export class UpdateDonor {
       eMail: eMail.trim()
     }).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'הצלחה', detail: 'התורם עודכן' });
         this.donorSaved.emit();
         this.visible.set(false);
         this.submitted = false;
       },
       error: (err) => {
-        const detail = err.error?.message || err.error || 'עדכון התורם נכשל';
-        this.messageService.add({ severity: 'error', summary: 'שגיאה', detail: String(detail) });
+        let detail = 'עדכון התורם נכשל';
+        if (err.status === 401 || err.status === 403) {
+          detail = 'נדרשת הרשאת Admin. התחבר/י מחדש.';
+        } else if (err.error?.message) {
+          detail = err.error.message;
+        } else if (typeof err.error === 'string' && err.error.trim()) {
+          detail = err.error;
+        }
+        this.saveError.set(detail);
       }
     });
   }

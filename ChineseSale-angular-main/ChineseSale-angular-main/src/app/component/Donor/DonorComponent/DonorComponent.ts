@@ -9,8 +9,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { SelectButtonModule } from 'primeng/selectbutton';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { AddDonor } from '../add-donor/add-donor';
 import { UpdateDonor } from '../update-donor/update-donor';
 
@@ -20,15 +18,13 @@ import { UpdateDonor } from '../update-donor/update-donor';
   imports: [
     CommonModule, ButtonModule, AddDonor, UpdateDonor,
     AccordionModule, FormsModule, SelectButtonModule, InputTextModule,
-    IconFieldModule, InputIconModule, ToastModule
+    IconFieldModule, InputIconModule
   ],
-  providers: [MessageService],
   templateUrl: './DonorComponent.html',
   styleUrl: './DonorComponent.scss',
 })
 export class DonorComponent implements OnInit {
   private donorService = inject(DonorService);
-  private messageService = inject(MessageService);
 
   donors = signal<Donor[]>([]);
   selectedDonor = signal<Donor | null>(null);
@@ -47,9 +43,7 @@ export class DonorComponent implements OnInit {
   loadDonors() {
     this.donorService.donorWithGifts().subscribe({
       next: (data) => this.donors.set(this.normalizeDonors(data)),
-      error: () => this.messageService.add({
-        severity: 'error', summary: 'שגיאה', detail: 'טעינת התורמים נכשלה. ודא/י שהתחברת כ-Admin.'
-      })
+      error: () => this.donors.set([])
     });
   }
 
@@ -64,23 +58,12 @@ export class DonorComponent implements OnInit {
 
   deleteDonor(donor: Donor) {
     if (donor.gifts && donor.gifts.length > 0) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'פעולה חסומה',
-        detail: `לא ניתן למחוק את ${donor.firstName} – יש מתנות משויכות`,
-        life: 4000
-      });
       return;
     }
 
     this.donorService.deleteDonor(donor.id).subscribe({
-      next: () => {
-        this.messageService.add({ severity: 'success', summary: 'בוצע', detail: 'התורם נמחק בהצלחה' });
-        this.donors.update(curr => curr.filter(d => d.id !== donor.id));
-      },
-      error: () => this.messageService.add({
-        severity: 'error', summary: 'שגיאה', detail: 'מחיקת התורם נכשלה'
-      })
+      next: () => this.donors.update(curr => curr.filter(d => d.id !== donor.id)),
+      error: () => {}
     });
   }
 
@@ -102,18 +85,8 @@ export class DonorComponent implements OnInit {
     };
 
     handlers[this.searchType]().subscribe({
-      next: (data) => {
-        const results = this.normalizeDonors(data);
-        this.donors.set(results);
-        if (results.length === 0) {
-          this.messageService.add({
-            severity: 'info', summary: 'לא נמצא', detail: 'לא נמצאו תוצאות לחיפוש'
-          });
-        }
-      },
-      error: () => this.messageService.add({
-        severity: 'warn', summary: 'שגיאת חיפוש', detail: 'החיפוש נכשל – ודא/י שהתחברת כ-Admin'
-      })
+      next: (data) => this.donors.set(this.normalizeDonors(data)),
+      error: () => this.donors.set([])
     });
   }
 }

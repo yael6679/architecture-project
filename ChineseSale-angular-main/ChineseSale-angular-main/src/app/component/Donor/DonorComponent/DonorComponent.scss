@@ -72,9 +72,10 @@
       color: var(--cs-text-muted) !important;
 
       &.p-togglebutton-checked {
-        background: var(--cs-primary-light) !important;
-        color: var(--cs-primary) !important;
+        background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-dark)) !important;
+        color: #fff !important;
         border-color: var(--cs-primary) !important;
+        box-shadow: 0 4px 14px color-mix(in srgb, var(--cs-glow, var(--cs-primary)) 40%, transparent);
       }
     }
   }

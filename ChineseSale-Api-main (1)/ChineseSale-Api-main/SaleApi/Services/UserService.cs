@@ -1,28 +1,23 @@
-﻿using Microsoft.Extensions.Configuration;
-using SaleApi.Models;
+﻿using SaleApi.Models;
 using SaleApi.Repositories;
-using System.ComponentModel.DataAnnotations;
 using static SaleApi.Dto.UserDto;
 
 namespace SaleApi.Services
 {
     public class UserService : IUserService
     {
-
         private readonly IUserRepository _userRepository;
         private readonly ITokenService _tokenService;
         private readonly IConfiguration _configuration;
         private readonly ILogger<UserService> _logger;
 
-        public UserService(IUserRepository userRepository, ITokenService tokenService,IConfiguration configuration, ILogger<UserService> logger)
+        public UserService(IUserRepository userRepository, ITokenService tokenService, IConfiguration configuration, ILogger<UserService> logger)
         {
             _userRepository = userRepository;
             _tokenService = tokenService;
             _configuration = configuration;
             _logger = logger;
         }
-
-
 
         public async Task<UserResponseDto> CreateUserAsync(UserCreateDto createDto)
         {
@@ -36,9 +31,8 @@ namespace SaleApi.Services
                 FirstName = createDto.FirstName,
                 LastName = createDto.LastName,
                 Email = createDto.Email,
-                Password = HashPassword(createDto.Password), 
+                Password = HashPassword(createDto.Password),
                 PhoneNumber = createDto.PhoneNumber,
-
             };
 
             var createdUser = await _userRepository.CreateAsync(user);
@@ -65,7 +59,6 @@ namespace SaleApi.Services
             return user != null ? MapToResponseDto(user) : null;
         }
 
-        //כל המשתמשים
         public async Task<IEnumerable<UserResponseDto>> GetAllUsersAsync()
         {
             var users = await _userRepository.GetAllAsync();
@@ -81,7 +74,7 @@ namespace SaleApi.Services
                 LastName = user.LastName,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
-                Role=user.Role
+                Role = user.Role
             };
         }
 
@@ -112,8 +105,6 @@ namespace SaleApi.Services
             return await _userRepository.DeleteAsync(id);
         }
 
-        //token
-
         public async Task<LoginResponseDto?> AuthenticateAsync(string email, string password)
         {
             var user = await _userRepository.GetByEmailAsync(email);
@@ -140,10 +131,9 @@ namespace SaleApi.Services
             {
                 Token = token,
                 TokenType = "Bearer",
-                ExpiresIn = expiryMinutes * 60, 
+                ExpiresIn = expiryMinutes * 60,
                 User = MapToResponseDto(user)
             };
         }
-
     }
 }

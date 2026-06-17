@@ -1,6 +1,4 @@
-<p-toast />
-
-<div class="draw-page">
+<div class="draw-page page-theme-fuchsia">
     <div class="page-header">
         <h1><i class="pi pi-sparkles"></i> מרכז הגרלות</h1>
         <p>בחר מתנה והפעל הגרלה לבחירת זוכה</p>
@@ -22,6 +20,9 @@
                         [disabled]="drawingId() !== null"
                         (click)="onExecuteDraw(gift.id)">
                     </button>
+                    @if (getDrawResult(gift.id); as winnerName) {
+                        <p class="draw-result">זוכה: {{ winnerName }}</p>
+                    }
                 </div>
             }
         </div>

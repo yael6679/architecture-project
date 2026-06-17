@@ -1,6 +1,5 @@
-<p-toast />
-
-<p-dialog header="עריכת תורם" [modal]="true" [(visible)]="visible" [style]="{ width: '28rem' }" styleClass="cs-dialog">
+<p-dialog header="עריכת תורם" [modal]="true" [visible]="visible()" (visibleChange)="visible.set($event)"
+    [style]="{ width: '28rem' }" styleClass="cs-dialog">
     <div class="form-field">
         <label>מזהה</label>
         <span class="id-display">{{ donor.id }}</span>
@@ -31,6 +30,10 @@
             <span class="field-error">כתובת אימייל לא תקינה</span>
         }
     </div>
+
+    @if (saveError()) {
+        <p class="field-error dialog-error">{{ saveError() }}</p>
+    }
 
     <ng-template pTemplate="footer">
         <p-button label="ביטול" severity="secondary" [text]="true" (click)="visible.set(false)" />

@@ -4,8 +4,6 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { CardModule } from 'primeng/card';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { UserService } from '../../../service/user.service';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -20,19 +18,17 @@ import { CommonModule } from '@angular/common';
     InputTextModule,
     PasswordModule,
     CardModule,
-    ToastModule,
     RouterLink
   ],
-  providers: [MessageService],
   templateUrl: './login.html',
   styleUrl: './login.scss'
 })
 export class Login {
-  private messageService = inject(MessageService);
   private userService = inject(UserService);
   private router = inject(Router);
 
   isLoading = signal(false);
+  formError = signal('');
 
   loginData = {
     Email: '',
@@ -40,12 +36,10 @@ export class Login {
   };
 
   onLogin() {
+    this.formError.set('');
+
     if (!this.loginData.Email || !this.loginData.Password) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'שדות חסרים',
-        detail: 'נא להזין אימייל וסיסמה'
-      });
+      this.formError.set('נא להזין אימייל וסיסמה');
       return;
     }
 
@@ -54,11 +48,6 @@ export class Login {
     this.userService.LogInUser(this.loginData).subscribe({
       next: () => {
         this.isLoading.set(false);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'ברוכ/ה הבא/ה!',
-          detail: 'התחברת בהצלחה'
-        });
         this.router.navigate(['/']);
       },
       error: (err) => {
@@ -66,11 +55,7 @@ export class Login {
         const detail = err.status === 0
           ? 'לא ניתן להתחבר לשרver. ודא/י שה-API פועל.'
           : 'אימייל או סיסמה שגויים.';
-        this.messageService.add({
-          severity: 'error',
-          summary: 'כניסה נכשלה',
-          detail
-        });
+        this.formError.set(detail);
       }
     });
   }

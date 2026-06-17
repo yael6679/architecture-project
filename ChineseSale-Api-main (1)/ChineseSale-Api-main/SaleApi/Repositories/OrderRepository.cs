@@ -4,24 +4,20 @@ using SaleApi.Models;
 
 namespace SaleApi.Repositories
 {
-
-
     public class OrderRepository : IOrderRepository
     {
         private readonly SaleContextDB _context;
+
         public OrderRepository(SaleContextDB saleContextDB) => _context = saleContextDB;
 
-        //GetAllOrder
         public async Task<IEnumerable<Order>> GetAllOrders()
         {
             return await _context.Orders
                 .Include(o => o.Gift)
-                .Include(o => o.User) // כאן היה התיקון מ- o ל- User
+                .Include(o => o.User)
                 .ToListAsync();
         }
 
-
-        // AddOrder
         public async Task<Order> AddOrder(Order order)
         {
             var userExists = await _context.Users.AnyAsync(u => u.Id == order.IdUser);
@@ -35,7 +31,6 @@ namespace SaleApi.Repositories
             return order;
         }
 
-        //GetOrdersByGiftId
         public async Task<IEnumerable<Order>> GetOrdersByGiftId(int giftId)
         {
             return await _context.Orders
@@ -45,9 +40,6 @@ namespace SaleApi.Repositories
                 .ToListAsync();
         }
 
-
-
-        // GetOrdersByUserId
         public async Task<IEnumerable<Order>> GetOrdersByUserId(int userId)
         {
             return await _context.Orders
@@ -56,28 +48,24 @@ namespace SaleApi.Repositories
                 .ToListAsync();
         }
 
-        //GetOrdersSortedByPopularity
         public async Task<IEnumerable<Order>> GetOrdersSortedByPopularity()
         {
             return await _context.Orders
                 .Include(o => o.Gift)
                 .Include(o => o.User)
-                .GroupBy(o => o.IdGift) // מקבצים לפי מתנה
-                .OrderByDescending(g => g.Count()) // ממיינים לפי הכמות הגבוהה ביותר
-                .SelectMany(g => g) // מחזירים לרשימה שטוחה של הזמנות
+                .GroupBy(o => o.IdGift)
+                .OrderByDescending(g => g.Count())
+                .SelectMany(g => g)
                 .ToListAsync();
         }
 
-        //GetOrdersSortedByPrice
         public async Task<IEnumerable<Order>> GetOrdersSortedByPrice()
         {
             return await _context.Orders
                 .Include(o => o.Gift)
                 .Include(o => o.User)
-                .OrderByDescending(o => o.Gift.Price) // מיון לפי מחיר המתנה מהגבוה לנמוך
+                .OrderByDescending(o => o.Gift.Price)
                 .ToListAsync();
         }
-
-
     }
 }

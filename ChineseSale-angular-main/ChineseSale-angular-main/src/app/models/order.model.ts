@@ -18,16 +18,3 @@ export interface UserShortDto {
     email: string;
     phoneNumber?: string;
 }
-
-// export interface AddOrderDto {
-//     idUser: number;
-//     idGift: number;
-// }
-
-// export interface GetPurchaserByOrderIdDto {
-//     orderId: number;
-//     firstName: string;
-//     lastName: string;
-//     email: string;
-//     giftName: string;
-// }

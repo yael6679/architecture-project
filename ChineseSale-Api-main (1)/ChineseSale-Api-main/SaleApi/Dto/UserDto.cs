@@ -88,7 +88,6 @@ namespace SaleApi.Dto
         public class LoginRequestDto
         {
             [EmailAddress]
-            //[MaxLength(200)]
             public string Email { get; set; } = string.Empty;
             public string Password { get; set; } = string.Empty;
         }

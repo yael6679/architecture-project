@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SaleApi.Models;
+﻿using SaleApi.Models;
 using SaleApi.Repositories;
 
 namespace SaleApi.Services
@@ -12,10 +11,7 @@ namespace SaleApi.Services
         private readonly IGiftRepository _giftRepository;
         private readonly IBagRepository _bagRepository;
 
-
-
-
-        public RandomService(IRandomRepository randomRepo, IEmailService emailService, IUserRepository userRepository, IGiftRepository giftRepository,IBagRepository bagRepository)
+        public RandomService(IRandomRepository randomRepo, IEmailService emailService, IUserRepository userRepository, IGiftRepository giftRepository, IBagRepository bagRepository)
         {
             _randomRepo = randomRepo;
             _emailService = emailService;
@@ -23,7 +19,6 @@ namespace SaleApi.Services
             _giftRepository = giftRepository;
             _bagRepository = bagRepository;
         }
-
 
         public async Task<int?> PickWinner(int giftId)
         {
@@ -53,8 +48,6 @@ namespace SaleApi.Services
             {
                 throw new KeyNotFoundException("לא ניתן לבצע הגרלה: אין אף משתתף שרכש כרטיס למתנה זו.");
             }
-            
-
 
             if (winOrderId == null)
             {
@@ -68,39 +61,18 @@ namespace SaleApi.Services
                 IdGift = giftId,
                 IdUser = winOrder.IdUser
             };
+
             await _randomRepo.SaveWinner(winner, winOrder.Id);
             await _bagRepository.RemoveGiftFromAllBags(giftId);
-
-            ////שליחת מייל
-            //if (winner != null)
-            //{
-            //    try
-            //    {
-            //        var user = await _userRepository.GetByIdAsync(winOrder.IdUser);
-            //        var gift = await _giftRepository.GetGiftById(giftId);
-            //        await _emailService.SendWinnerEmailAsync(
-            //            winner.User.Email,
-            //            winner.User.FirstName,
-            //            winner.Gift.Name
-            //        );
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        throw new KeyNotFoundException("שליחת מייל נכשל");
-            //    }
-            //}
-            //
 
             return winner;
         }
 
-        // בדיקה האם המתנה כבר הוגרלה
         public async Task<bool> IsGiftDrawnAsync(int giftId)
         {
             return await _randomRepo.IsGiftDrawnAsync(giftId);
         }
 
-        // שליפת כל הזוכים 
         public async Task<IEnumerable<Winner>> GetAllWinnersAsync()
         {
             return await _randomRepo.GetDrawnGiftIdsAsync();

@@ -1,4 +1,5 @@
-﻿using SaleApi.Models;
+﻿using SaleApi.Dto;
+using SaleApi.Models;
 using SaleApi.Repositories;
 using static SaleApi.Dto.BagDto;
 using static SaleApi.Dto.GiftDto;
@@ -10,17 +11,20 @@ namespace SaleApi.Services
         private readonly IBagRepository _bagRepository;
         private readonly IOrderRepository _orderRepository;
         private readonly IRandomRepository _randomRepository;
+        private readonly IKafkaProducerService _kafkaProducer;
         private readonly ILogger<BagService> _logger;
 
         public BagService(
             IBagRepository bagRepository,
             IOrderRepository orderRepository,
             IRandomRepository randomRepository,
+            IKafkaProducerService kafkaProducer,
             ILogger<BagService> logger)
         {
             _bagRepository = bagRepository;
             _orderRepository = orderRepository;
             _randomRepository = randomRepository;
+            _kafkaProducer = kafkaProducer;
             _logger = logger;
         }
 
@@ -31,8 +35,23 @@ namespace SaleApi.Services
 
             int newGroupId = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
 
+            var orderItems = itemsInBag
+                .Where(item => item?.Gift != null)
+                .Select(item => new OrderEventItem
+                {
+                    GiftId = item!.IdGift,
+                    GiftName = item.Gift!.Name,
+                    Quantity = item.Quantity,
+                    Price = item.Gift.Price
+                })
+                .ToList();
+
+            var totalPrice = orderItems.Sum(i => (decimal)i.Price * i.Quantity);
+
             foreach (var item in itemsInBag)
             {
+                if (item == null) continue;
+
                 for (int i = 0; i < item.Quantity; i++)
                 {
                     var newOrder = new Order
@@ -47,6 +66,17 @@ namespace SaleApi.Services
             }
 
             await _bagRepository.ClearUserBag(userId);
+
+            await _kafkaProducer.PublishOrderEventAsync(new OrderEventMessage
+            {
+                EventType = "CheckoutCompleted",
+                UserId = userId,
+                OrderGroupId = newGroupId,
+                Items = orderItems,
+                TotalPrice = totalPrice,
+                OccurredAt = DateTime.UtcNow
+            });
+
             return true;
         }
 

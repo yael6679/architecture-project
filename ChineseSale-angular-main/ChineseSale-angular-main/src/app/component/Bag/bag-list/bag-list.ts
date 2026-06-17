@@ -9,8 +9,6 @@ import { CreateBagDto } from '../../../models/bag.model';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
@@ -18,7 +16,7 @@ import { TooltipModule } from 'primeng/tooltip';
   standalone: true,
   imports: [
     TableModule, CommonModule, ButtonModule, DialogModule,
-    InputTextModule, FormsModule, ToastModule, TooltipModule, RouterLink
+    InputTextModule, FormsModule, TooltipModule, RouterLink
   ],
   templateUrl: './bag-list.html',
   styleUrl: './bag-list.scss',
@@ -28,7 +26,6 @@ export class Baglist implements OnInit {
   private userService = inject(UserService);
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
-  private messageService = inject(MessageService);
 
   paymentInfo = { cardNumber: '', expiry: '', cvv: '', holderName: '' };
   bag = signal<any[]>([]);
@@ -63,9 +60,7 @@ export class Baglist implements OnInit {
   loadBag(userId: number) {
     this.bagService.getBagsByUserId(userId).subscribe({
       next: (data) => this.bag.set(data),
-      error: () => this.messageService.add({
-        severity: 'error', summary: 'שגיאה', detail: 'טעינת הסל נכשלה'
-      })
+      error: () => this.bag.set([])
     });
   }
 
@@ -85,9 +80,7 @@ export class Baglist implements OnInit {
             : i
         ));
       },
-      error: () => this.messageService.add({
-        severity: 'error', summary: 'שגיאה', detail: 'לא ניתן לעדכן את הכמות'
-      })
+      error: () => {}
     });
   }
 
@@ -110,24 +103,19 @@ export class Baglist implements OnInit {
             : i
         ));
       },
-      error: () => this.messageService.add({
-        severity: 'error', summary: 'שגיאה', detail: 'לא ניתן לעדכן את הכמות'
-      })
+      error: () => {}
     });
   }
 
   deleteBag(id: number) {
     this.bagService.deleteBag(id).subscribe({
       next: () => this.bag.update(prev => prev.filter(item => (item.id || item.Id) !== id)),
-      error: () => this.messageService.add({
-        severity: 'error', summary: 'שגיאה', detail: 'מחיקה מהסל נכשלה'
-      })
+      error: () => {}
     });
   }
 
   openPaymentDialog() {
     if (this.bag().length === 0) {
-      this.messageService.add({ severity: 'warn', summary: 'סל ריק', detail: 'אין פריטים לרכישה' });
       return;
     }
     this.displayPaymentDialog.set(true);
@@ -143,17 +131,11 @@ export class Baglist implements OnInit {
     this.bagService.ProcessCheckout(userId).subscribe({
       next: () => {
         this.isCheckingOut.set(false);
-        this.messageService.add({
-          severity: 'success', summary: 'הצלחה!', detail: 'הרכישה בוצעה בהצלחה', life: 5000
-        });
         this.bag.set([]);
         this.router.navigate(['/order-history']);
       },
       error: () => {
         this.isCheckingOut.set(false);
-        this.messageService.add({
-          severity: 'error', summary: 'שגיאה', detail: 'חלה שגיאה בביצוע הרכישה', life: 5000
-        });
       }
     });
   }

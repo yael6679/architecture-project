@@ -38,21 +38,18 @@ getDonorsByName(name: string): Observable<Donor[]> {
   });
 }
 
-// חיפוש לפי אימייל - משתמש ב-Query Parameter (?email=...)
 getDonorsByEmail(email: string): Observable<Donor[]> {
   return this.http.get<Donor[]>(`${this.apiUrl}/doner/email`, {
     params: { email: email }
   });
 }
 
-// חיפוש לפי שם מתנה - משתמש ב-Query Parameter (?giftName=...)
 getDonorsByGift(giftName: string): Observable<Donor[]> {
   return this.http.get<Donor[]>(`${this.apiUrl}/doner/gift`, {
     params: { giftName: giftName }
   });
 }
 
-// שימי לב שהנתיב הזה בקונטרולר שלך הוא "withGifts"
 getAllDonorsWithGifts(): Observable<any[]> {
   return this.http.get<any[]>(`${this.apiUrl}/withGifts`);
 }

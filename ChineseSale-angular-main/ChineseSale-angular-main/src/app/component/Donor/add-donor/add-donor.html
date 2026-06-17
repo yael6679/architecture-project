@@ -1,8 +1,7 @@
-<p-toast />
-
 <p-button (click)="showDialog()" label="הוסף תורם" icon="pi pi-plus" class="btn-add-donor" />
 
-<p-dialog header="תורם חדש" [modal]="true" [(visible)]="visible" [style]="{ width: '28rem' }" styleClass="cs-dialog">
+<p-dialog header="תורם חדש" [modal]="true" [visible]="visible()" (visibleChange)="visible.set($event)"
+    [style]="{ width: '28rem' }" styleClass="cs-dialog">
     <div class="form-field">
         <label for="fname">שם פרטי *</label>
         <input pInputText id="fname" class="w-full" [(ngModel)]="newDonor.firstName" autocomplete="given-name" />
@@ -28,6 +27,10 @@
             <span class="field-error">כתובת אימייל לא תקינה</span>
         }
     </div>
+
+    @if (saveError()) {
+        <p class="field-error dialog-error">{{ saveError() }}</p>
+    }
 
     <ng-template pTemplate="footer">
         <p-button label="ביטול" severity="secondary" [text]="true" (click)="visible.set(false)" />

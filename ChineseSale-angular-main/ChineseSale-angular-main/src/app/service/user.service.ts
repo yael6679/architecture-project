@@ -21,7 +21,6 @@ currentUser = signal<AuthResponse | null>(null);
       if (data) {
         try {
           const parsed = JSON.parse(data);
-          // Handle both { user: {...} } and direct {...} formats
           const userData = parsed.user ? parsed.user : parsed;
           this.currentUser.set(userData);
         } catch (e) {

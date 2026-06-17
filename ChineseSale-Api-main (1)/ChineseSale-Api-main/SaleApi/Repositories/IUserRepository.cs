@@ -5,8 +5,6 @@ namespace SaleApi.Repositories
     public interface IUserRepository
     {
         Task<IEnumerable<User>> GetAllAsync();
-        //Task<User> NewUser(User user);
-        //Task<bool> EmailExists(string email);
         Task<User> CreateAsync(User user);
         Task<bool> EmailExistsAsync(string email);
         Task<User?> GetByIdAsync(int id);

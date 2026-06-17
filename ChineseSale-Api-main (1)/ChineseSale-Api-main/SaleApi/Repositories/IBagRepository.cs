@@ -10,7 +10,6 @@ namespace SaleApi.Repositories
         Task<Bag?> GetBagById(int id);
         Task<IEnumerable<Bag>> GetBagByUser(int userId);
         Task<IEnumerable<Bag>> GetBagByGift(int giftId);
-        //Task ClearUserBag(int userId);
         Task ClearUserBag(int userId);
         Task RemoveGiftFromAllBags(int giftId);
     }

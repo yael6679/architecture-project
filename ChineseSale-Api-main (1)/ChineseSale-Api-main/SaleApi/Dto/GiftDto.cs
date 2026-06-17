@@ -26,8 +26,6 @@ namespace SaleApi.Dto
             public string Name { get; set; }
             [MaxLength(500)]
             public string? Description { get; set; }
-            //[MaxLength(1000)]
-            //public string? Img { get; set; }
 
             public IFormFile? Image { get; set; }
 

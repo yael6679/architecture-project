@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SaleApi.Models;
 using SaleApi.Services;
-using static SaleApi.Dto.DonerDto;
 using static SaleApi.Dto.UserDto;
 
 namespace SaleApi.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -14,14 +11,12 @@ namespace SaleApi.Controllers
         private readonly IUserService _userService;
         private readonly ILogger<UserController> _logger;
 
-
         public UserController(IUserService userService, ILogger<UserController> logger)
         {
             _userService = userService;
             _logger = logger;
         }
-        //כל המשתמשים
-        [HttpGet]
+
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<UserResponseDto>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<UserResponseDto>>> GetAll()
@@ -29,7 +24,6 @@ namespace SaleApi.Controllers
             var users = await _userService.GetAllUsersAsync();
             return Ok(users);
         }
-
 
         [HttpPost]
         [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status201Created)]
@@ -85,7 +79,6 @@ namespace SaleApi.Controllers
             }
         }
 
-
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -100,7 +93,5 @@ namespace SaleApi.Controllers
 
             return NoContent();
         }
-
-
     }
 }
